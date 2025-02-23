@@ -7,15 +7,15 @@ Una calculadora creada en C# que permite realizar operaciones matemáticas y ges
 - .NET
 
 ## ✨ **Funcionalidades**
-✔️ Suma
-✔️ Resta
-✔️ Multiplicación
-✔️ División
-✔️ Raíz cuadrada
-✔️ Potencia
-✔️ Deshacer última operación
-✔️ Mostrar historial de operaciones
-✔️ Generar un archivo '.txt' con el historial
+✔️ Suma <br>
+✔️ Resta <br>
+✔️ Multiplicación <br>
+✔️ División <br>
+✔️ Raíz cuadrada <br>
+✔️ Potencia <br>
+✔️ Deshacer última operación <br>
+✔️ Mostrar historial de operaciones <br>
+✔️ Generar un archivo '.txt' con el historial <br>
 
 ## 🚀 ** Instalación y ejecución
 1. Clona el repositorio:
