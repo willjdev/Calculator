@@ -1,4 +1,7 @@
 ﻿using System.Globalization;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
+using NCalc;
 using static Operations.Operations;
 
 CultureInfo culturaUsuario = CultureInfo.CurrentCulture;
@@ -11,6 +14,23 @@ int contadorOperaciones = 0;
 bool exitProgram = true;
 bool squareTotalExecuted = true;
 bool errorDivision = false;
+
+
+do
+{
+    Console.Clear();
+    Console.WriteLine("Calculadora Wilds!!");
+    Console.WriteLine("Presione 1 si desea utilizar la calculadora detallada, o presione 2 si desea utilizar la calculadora directa.\nPresione ESC en cualquier momento para finalizar el proceso ");
+    string modoCalculadoraElegido = LeerEntrada();
+
+    if (modoCalculadoraElegido == "1")
+        break;
+    else if (modoCalculadoraElegido == "2")
+        SecondMode();
+        break;
+} while (true);
+
+
 
 
 do
@@ -113,7 +133,6 @@ string SolicitarNumero ()
             Console.Write($"{resultadoTotal} {operationToExecute} ");
         else
             Console.Write(historial + " ");
-            // Agregar la función de colocar el historial en un archivo de texto
     }
     else
     {
@@ -146,20 +165,20 @@ void ExecuteSquareAndShowResult (string userOperator)
         listaDeNumeros.Clear();
         Console.Clear();
         Console.WriteLine(resultadoTotal);
-        EndOperation();
+        exitProgram = EndOperation();
         contadorOperaciones++;
     }
     else if (resultadoTotal == 0 && listaDeNumeros.Count == 1 && userOperator == "=")
     {
         Console.Clear();
         Console.WriteLine(listaDeNumeros[0]);
-        EndOperation();
+        exitProgram = EndOperation();
     }
     else if  (resultadoTotal != 0 && listaDeNumeros.Count == 0 && userOperator == "=")
     {
         Console.Clear();
         Console.WriteLine(resultadoTotal);
-        EndOperation();
+        exitProgram = EndOperation();
     }
     else if (resultadoTotal != 0 && listaDeNumeros.Count == 0 && userOperator == "r")
     {
@@ -167,14 +186,14 @@ void ExecuteSquareAndShowResult (string userOperator)
         numeroAnterior = resultadoTotal;
         resultadoTotal = RaizCuadrada(resultadoTotal);
         Console.WriteLine(resultadoTotal);
-        EndOperation();
+        exitProgram = EndOperation();
     }
     else if (userOperator == "h")
     {
         Console.Clear();
         Console.WriteLine($"Historial de operaciones:\n{historial} = {resultadoTotal}");
         Console.ReadLine();
-        EndOperation();
+        exitProgram = EndOperation();
     }
     else if (userOperator == "d")
     {
@@ -234,7 +253,7 @@ void ExecuteOperation(string userOperator)
 
 }
 
-void EndOperation()
+bool EndOperation()
 {
         string? continuarOperando;
         squareTotalExecuted = false;
@@ -247,13 +266,15 @@ void EndOperation()
     
     if (continuarOperando.ToLower() == "y")
     {
-        exitProgram = true;
+        return true;
     }
     else if (continuarOperando.ToLower() == "n")
     {
         Console.WriteLine("Hasta luego!");
-        exitProgram = false;
+        return false;
     }
+
+    return false;
 }
 
 void UnDoOperation ()
@@ -315,6 +336,56 @@ void EscribirHistorialArchivo()
 
     Console.Clear();
     Console.WriteLine("Archivo de historial creado!");
-    EndOperation();
+    exitProgram = EndOperation();
+
+}
+
+void SecondMode ()
+{
+    Console.Clear();
+    Console.WriteLine("Ingrese la operación que desea realizar, luego presine ENTER para obtener el resultado");
+
+    string userEntry = LeerEntrada();
+    string temporalUserEntry = userEntry;
+    string numeroOperarRaiz = "";
+    // string operacion = "";
+
+
+    for (int i = 0; i < userEntry.Length; i++)
+    {
+        if (Regex.IsMatch(userEntry[i].ToString(), "[^0-9.+\\-*/^r]"))
+        {
+            throw new ArgumentException("Syntax error");
+        }
+    }
+
+    for (int i = 0; i < temporalUserEntry.Length; i++)
+    {
+        if (temporalUserEntry[i] == 'r' && temporalUserEntry[i+1] != 't') 
+        {
+            for (int j = i + 1; j < userEntry.Length; j++)
+            {
+                // De pronto sea mejor utulizar temporalUserEntry y que se actulicen las posiciones
+                // Verificar el uso de Replace
+                // Probar el Substring con un ejemplo
+                if (Regex.IsMatch(userEntry[i].ToString(), "[0-9.]"))
+                {
+                    numeroOperarRaiz += userEntry[i];
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            temporalUserEntry = $"{userEntry.Substring(0, i)}sqrt({numeroOperarRaiz}){userEntry.Substring(i + numeroOperarRaiz.Length + 1)}";
+
+        }
+    }
+
+    NCalc.Expression expresion = new NCalc.Expression(temporalUserEntry);
+    Console.WriteLine(expresion);
+    
+    Console.WriteLine("Desea realizar otra operación ? Presione 'Y' para continuar, o presione 'N' para finalizar");
 
 }
