@@ -24,10 +24,32 @@ do
     string modoCalculadoraElegido = LeerEntrada();
 
     if (modoCalculadoraElegido == "1")
+    {
         break;
+    }
     else if (modoCalculadoraElegido == "2")
-        SecondMode();
-        break;
+    {
+        try
+        {
+            SecondMode();
+            Console.Clear();
+            Console.WriteLine("Hasta luego!");
+            Environment.Exit(0);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.Clear();
+            Console.WriteLine($"Error en operación: {ex.Message}. Ingrese una operación valida");
+            Console.ReadLine();
+        }
+        catch (DivideByZeroException ex)
+        {
+            Console.Clear();
+            Console.WriteLine($"Error en operación: {ex.Message}. Ingrese una operación válida");
+            Console.ReadLine();
+        }
+
+    }     
 } while (true);
 
 
@@ -342,50 +364,88 @@ void EscribirHistorialArchivo()
 
 void SecondMode ()
 {
-    Console.Clear();
-    Console.WriteLine("Ingrese la operación que desea realizar, luego presine ENTER para obtener el resultado");
-
-    string userEntry = LeerEntrada();
-    string temporalUserEntry = userEntry;
-    string numeroOperarRaiz = "";
-    // string operacion = "";
-
-
-    for (int i = 0; i < userEntry.Length; i++)
+    do
     {
-        if (Regex.IsMatch(userEntry[i].ToString(), "[^0-9.+\\-*/^r]"))
-        {
-            throw new ArgumentException("Syntax error");
-        }
-    }
+        Console.Clear();
+        Console.WriteLine("Ingrese la operación que desea realizar, luego presine ENTER para obtener el resultado");
 
-    for (int i = 0; i < temporalUserEntry.Length; i++)
-    {
-        if (temporalUserEntry[i] == 'r' && temporalUserEntry[i+1] != 't') 
+        string userEntry = LeerEntrada();
+        string temporalUserEntry = userEntry;
+        string numeroOperarRaiz = "";
+
+        for (int i = 0; i < userEntry.Length; i++)
         {
-            for (int j = i + 1; j < userEntry.Length; j++)
+            if (Regex.IsMatch(userEntry[i].ToString(), "[^0-9.+\\-*/^r]"))
             {
-                // De pronto sea mejor utulizar temporalUserEntry y que se actulicen las posiciones
-                // Verificar el uso de Replace
-                // Probar el Substring con un ejemplo
-                if (Regex.IsMatch(userEntry[i].ToString(), "[0-9.]"))
-                {
-                    numeroOperarRaiz += userEntry[i];
-                }
-                else
-                {
-                    break;
-                }
+                throw new ArgumentException("Syntax error");
             }
-
-            temporalUserEntry = $"{userEntry.Substring(0, i)}sqrt({numeroOperarRaiz}){userEntry.Substring(i + numeroOperarRaiz.Length + 1)}";
-
         }
-    }
 
-    NCalc.Expression expresion = new NCalc.Expression(temporalUserEntry);
-    Console.WriteLine(expresion);
-    
-    Console.WriteLine("Desea realizar otra operación ? Presione 'Y' para continuar, o presione 'N' para finalizar");
+        for (int i = 0; i < temporalUserEntry.Length; i++)
+        {
+            if (temporalUserEntry[i] == 'r' && temporalUserEntry[i+1] != 't') 
+            {
+                for (int j = i + 1; j < userEntry.Length; j++)
+                {
+                    if (Regex.IsMatch(userEntry[j].ToString(), "[0-9\\.]"))
+                    {
+                        numeroOperarRaiz += userEntry[j];
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
 
+                temporalUserEntry = $"{temporalUserEntry.Substring(0, i)}Sqrt({numeroOperarRaiz}){temporalUserEntry.Substring(i + numeroOperarRaiz.Length + 1)}";
+
+
+            }
+        }
+
+        temporalUserEntry = OperarPotencia(temporalUserEntry);
+
+        if (temporalUserEntry.Contains("/0"))
+            throw new DivideByZeroException("División por cero invalida");
+        if (temporalUserEntry.Length < 3)
+            throw new InvalidOperationException("Operación incompleta");
+
+
+        NCalc.Expression expresion = new NCalc.Expression(temporalUserEntry);
+        Console.Clear();
+        Console.WriteLine(expresion.Evaluate());
+        exitProgram = EndOperation();
+    } while (exitProgram);
+
+}
+
+string OperarPotencia(string operacion)
+{
+    string primerNumero = "";
+    string segundoNumero = "";
+        for (int i = 0; i < operacion.Length; i++)
+        {
+            if (operacion[i] == '^') 
+            {
+                for (int j = i-1; j >= 0; j--)
+                {
+                    if (Regex.IsMatch(operacion[j].ToString(), "[0-9\\.]"))
+                        primerNumero += operacion[j];
+                    else
+                        break;
+                }
+
+                for (int k = i + 1; k < operacion.Length; k++)
+                {
+                    if (Regex.IsMatch(operacion[k].ToString(), "[0-9\\.]"))
+                        segundoNumero += operacion[k];
+                    else
+                        break;
+                }
+
+                operacion = $"{operacion.Substring(0, i - primerNumero.Length)}Pow({primerNumero.Reverse()},{segundoNumero}){operacion.Substring(i + segundoNumero.Length + 1)}";
+            }
+        }
+
+        return operacion;
 }

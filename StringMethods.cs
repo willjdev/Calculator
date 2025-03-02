@@ -22,4 +22,11 @@ public static class StringExtension
             return true;
         }
     }
+
+    public static string Reverse (this string text)
+    {
+        char[] stringArray = text.ToCharArray();
+        Array.Reverse(stringArray);
+        return new string(stringArray);
+    }
 }
